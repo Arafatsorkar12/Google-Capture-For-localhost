@@ -1,0 +1,50 @@
+ <script src="https://www.google.com/recaptcha/api.js"></script>
+
+<script>
+    function onSubmit(token) {
+        document.getElementById("demo-form").submit();
+    }
+</script>
+
+
+<button class="g-recaptcha"
+        data-sitekey="6LclODYqAAAAAIOpGZpwjgH6X5P1izMPSbiD_ZK7"
+        data-callback='onSubmit'
+        data-action='submit'>Submit</button>
+
+
+
+@php
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $recaptchaToken = $_POST['g-recaptcha-response'];
+        $secretKey = '6LclODYqAAAAAByGvpb-qY6kYmgu-N00vEgOavzK';
+
+         $url = 'https://www.google.com/recaptcha/api/siteverify';
+        $data = [
+            'secret' => $secretKey,
+            'response' => $recaptchaToken
+        ];
+
+        $options = [
+            CURLOPT_URL => $url,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($data),
+            CURLOPT_RETURNTRANSFER => true
+        ];
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+
+         if ($result['success'] && $result['score'] >= 0.5) {
+
+        } else {
+             echo 'reCAPTCHA verification failed. Please try again.';
+        }
+    }
+
+
+ @endphp
